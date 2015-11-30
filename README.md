@@ -13,9 +13,9 @@ ITDseek for detection
 ```bash
 ./itdseek.sh <sample.bam> <ref.fasta> <samtools> > sample.itdseek.vcf
 ```
-- *<sample.bam>*: indexed BAM alignment file, generated from BWA-MEM with -M option (Mark shorter split hits as secondary). To index the BAM file: `samtools index sample.bam`
-- *<ref.fasta>*: indexed hg19 reference genome in FASTA format. Only positions **chr13:28607161-28609590** will be considered, or `itdseek.sh` needs to be modified accordingly. To index the FASTA file: `samtools faidx ref.fasta`
-- *<samtools>*: path to samtools executable. Use `samtools` if it is already included in a directory defined in `$PATH`
+- *sample.bam*: indexed BAM alignment file, generated from BWA-MEM with -M option (Mark shorter split hits as secondary). To index the BAM file: `samtools index sample.bam`
+- *ref.fasta*: indexed hg19 reference genome in FASTA format. Only positions **chr13:28607161-28609590** will be considered, or `itdseek.sh` needs to be modified accordingly. To index the FASTA file: `samtools faidx ref.fasta`
+- *samtools*: path to samtools executable. Use `samtools` if it is already included in a directory defined in `$PATH`
 - *standard output (STDOUT)*: variant calls in [VCF version 4.1](http://samtools.github.io/hts-specs/VCFv4.1.pdf)
 
 Example
@@ -38,7 +38,8 @@ ITDsim for simulation
 ```bash
 ./itdsim.pl | ./itdsim2fastq.pl
 ```
-This generates the evaluation dataset described in the manuscript in the current directory, specifically 40401 pairs of FASTQ files (2x275bp at 2000X depth and ITD VAF 50%) representing 201 startings positions and 201 ITD lengths for the amplicon "FLT3.ITD.line.29.chr13.28607916.28608351_tile_2" in [Illumina TruSight Myeloid Panel](https://support.illumina.com/downloads/trusight-dna-amplicon-product-files.html)
+This generates the evaluation dataset described in the manuscript in the current directory, specifically 40401 pairs of FASTQ files (2x275bp at 2000X depth and ITD VAF 50%) representing 201 startings positions and 201 ITD lengths for the amplicon "FLT3.ITD.line.29.chr13.28607916.28608351_tile_2" in [Illumina TruSight Myeloid Panel](https://support.illumina.com/downloads/trusight-dna-amplicon-product-files.html).
+Please refer to the comments in the source code of [itdsim.pl](https://github.com/tommyau/itdseek/blob/master/itdsim.pl) and [itdsim2fastq.pl](https://github.com/tommyau/itdseek/blob/master/itdsim2fastq.pl) for viewing/modifying simulation parameters.
 
 
 Citation
