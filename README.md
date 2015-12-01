@@ -29,7 +29,7 @@ samtools index ITDsample.bam
 ```
 
 ### Interpretation of results
-**Quality score** of called variants is defined as the **total number of sequencing reads** (forward and reverse combined) with ITD detected.
+**Quality score** of called variants is defined as the **total number of sequencing reads with ITD detected** (forward and reverse combined).
 The following is an example ITDseek output for a simulated 90bp ITD, with overall depth 2000X and VAF 50%. The quality score (sixth column `QUAL`) is 1000, corresponding to variant depth 1000X. Additional details are described in the last column (eighth column `INFO`), including forward and reverse ITD reads `DP2`, ITD length `LEN` and ITD sequence `SEQ`.
 ```bash
 $ itdseek.sh ITD.100.90.bam ucsc.hg19.fasta samtools
