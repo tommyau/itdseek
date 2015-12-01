@@ -1,6 +1,6 @@
 ITDseek
 =======
-Detect FLT3 internal tandem duplication (FLT3 ITD) from amplicon sequencing reads (ITDseek) and simulate these reads (ITDsim)
+Detect _FLT3_ internal tandem duplication (_FLT3_ ITD) from amplicon sequencing reads (ITDseek) and simulate these reads (ITDsim)
 
 [Download latest version in a ZIP package](https://github.com/tommyau/itdseek/zipball/master)
 
@@ -26,6 +26,26 @@ bwa mem -R '@RG\tID:ITDsample\tSM:ITDsample' -M -t 12 ucsc.hg19.fasta ITDsample.
 samtools index ITDsample.bam
 # ITDseek
 ./itdseek.sh ITDsample.bam ucsc.hg19.fasta samtools > ITDsample.itdseek.vcf
+```
+
+### Interpretation of results
+**Quality score** of called variants is defined as the **total number of sequencing reads** (forward and reverse combined) with ITD detected.
+The following is an example ITDseek output for a simulated 90bp ITD, with overall depth 2000X and VAF 50%. The quality score (sixth column `QUAL`) is 1000, corresponding to variant depth 1000X. Additional details are described in the last column (eighth column `INFO`), including forward and reverse ITD reads `DP2`, ITD length `LEN` and ITD sequence `SEQ`.
+```bash
+$ itdseek.sh ITD.100.90.bam ucsc.hg19.fasta samtools
+##fileformat=VCFv4.1
+##source=ITDseek
+##reference=file://ucsc.hg19.fasta
+##INFO=<ID=DP2,Number=2,Type=Integer,Description="# alt-foward and alt-reverse reads">
+##INFO=<ID=LEN,Number=1,Type=Integer,Description="length of ITD">
+##INFO=<ID=SEQ,Number=1,Type=String,Description="sequence of ITD">
+#CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO
+chr13   28608300        .       C       CCATTCTTACCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATC    1000    .       DP2=1000,0;LEN=90;SEQ=CATTCTTACCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATC
+```
+A simple filter based on quality score (i.e. number reads supporting ITD) is recommended for real experimental datasets, for example:
+```bash
+# Minimum quality score 50
+./itdseek.sh ITDsample.bam ucsc.hg19.fasta samtools | awk '$1 ~ /^#/ || $6 >= 50' > ITDsample.itdseek.vcf
 ```
 
 
