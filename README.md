@@ -5,6 +5,7 @@ Detect _FLT3_ internal tandem duplication (_FLT3_ ITD) from amplicon sequencing 
 [Download latest version in a ZIP package](https://github.com/tommyau/itdseek/zipball/master)
 
 _FLT3_ ITD detection performance of **ITDseek, Pindel, GATK HaplotypeCaller and Samtools** based on 40,401 simulated samples of ITD length up to 201bp at different positions of an amplicon (Au _et al. Diagnostic Pathology_ 2016 11:11 [Figure 2](http://www.diagnosticpathology.org/content/11/1/11/figure/F2))
+
 ![FLT3 ITD detection performance of ITDseek, Pindel, GATK HaplotypeCaller and Samtools](http://www.diagnosticpathology.org/content/figures/s13000-016-0456-8-2.jpg)
 
 ITDseek for detection
