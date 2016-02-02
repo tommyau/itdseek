@@ -4,9 +4,9 @@ Detect _FLT3_ internal tandem duplication (_FLT3_ ITD) from amplicon sequencing 
 
 [Download latest version in a ZIP package](https://github.com/tommyau/itdseek/zipball/master)
 
-_FLT3_ ITD detection performance of **ITDseek, Pindel, GATK HaplotypeCaller and Samtools** based on 40,401 simulated samples of ITD length up to 201bp at different positions of an amplicon (Au _et al. Diagnostic Pathology_ 2016 11:11 [Figure 2](http://www.diagnosticpathology.org/content/11/1/11/figure/F2))
+_FLT3_ ITD detection performance of **ITDseek, Pindel, GATK HaplotypeCaller and Samtools** based on 40,401 simulated samples of ITD length up to 201bp at different positions of an amplicon (Au _et al. Diagnostic Pathology_ 2016 11:11 [Figure 2](http://link.springer.com/article/10.1186/s13000-016-0456-8/fulltext.html#Fig2))
 
-![FLT3 ITD detection performance of ITDseek, Pindel, GATK HaplotypeCaller and Samtools](http://www.diagnosticpathology.org/content/figures/s13000-016-0456-8-2.jpg)
+![FLT3 ITD detection performance of ITDseek, Pindel, GATK HaplotypeCaller and Samtools](http://static-content.springer.com/image/art%3A10.1186%2Fs13000-016-0456-8/MediaObjects/13000_2016_456_Fig2_HTML.gif)
 
 ITDseek for detection
 ---------------------
@@ -68,7 +68,7 @@ Please refer to the comments in the source code of [itdsim.pl](https://github.co
 
 Citation
 --------
-Au CH, Wa A, Ho DN, Chan TL and Ma ESK, 2016. [Clinical evaluation of panel testing by next-generation sequencing (NGS) for gene mutations in myeloid neoplasms.](http://dx.doi.org/10.1186/s13000-016-0456-8) _Diagnostic Pathology_ 11:11 (doi:10.1186/s13000-016-0456-8)
+Au CH, Wa A, Ho DN, Chan TL and Ma ESK, 2016. [Clinical evaluation of panel testing by next-generation sequencing (NGS) for gene mutations in myeloid neoplasms.](http://link.springer.com/article/10.1186/s13000-016-0456-8/fulltext.html) _Diagnostic Pathology_ 11:11 (doi:10.1186/s13000-016-0456-8)
 
 License
 -------
