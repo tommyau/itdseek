@@ -17,4 +17,4 @@ else
 fi
 
 # pipeline SAM alignments to itdseek.pl
-$SAMTOOLS view -f 0x0100 $BAM chr13:28607161-28609590 | ${SCRIPT_DIR}/itdseek.pl --refseq $REFSEQ --samtools $SAMTOOLS
+$SAMTOOLS view $BAM chr13:28607161-28609590 | ${SCRIPT_DIR}/itdseek.pl --refseq $REFSEQ --samtools $SAMTOOLS

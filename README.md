@@ -22,8 +22,15 @@ ITDseek for detection
 - *samtools*: path to samtools executable. Use `samtools` if it is already included in a directory defined in `$PATH`
 - *standard output (STDOUT)*: variant calls in [VCF version 4.1](http://samtools.github.io/hts-specs/VCFv4.1.pdf)
 
-Example
+Examples
 ```bash
+# Provided example data
+# 100bp ITD leading to soft-clipping in BAM file
+./itdseek.sh examples/ITD.100.100.bam ucsc.hg19.fasta samtools > ITD.100.100.itdseek.vcf
+# 20bp ITD leading to insertion in BAM file
+./itdseek.sh examples/ITD.100.20.bam ucsc.hg19.fasta samtools > ITD.100.20.itdseek.vcf
+
+# Your own data
 # BWA-MEM with -M
 bwa mem -R '@RG\tID:ITDsample\tSM:ITDsample' -M -t 12 ucsc.hg19.fasta ITDsample.R1.fastq ITDsample.R2.fastq | samtools view -bS - | samtools sort - ITDsample
 # Index BAM
@@ -34,17 +41,19 @@ samtools index ITDsample.bam
 
 ### Interpretation of results
 **Quality score** of called variants is defined as the **total number of sequencing reads with ITD detected** (forward and reverse combined).
-The following is an example ITDseek output for a simulated 90bp ITD, with overall depth 2000X and VAF 50%. The quality score (sixth column `QUAL`) is 1000, corresponding to variant depth 1000X. Additional details are described in the last column (eighth column `INFO`), including forward and reverse ITD reads `DP2`, ITD length `LEN` and ITD sequence `SEQ`.
+The following is ITDseek output for a simulated 100bp ITD dataset included in the folder examples/, with overall depth 2000X and VAF 50%. The quality score (sixth column `QUAL`) is 1000, corresponding to variant depth 1000X. Additional details are described in the last column (eighth column `INFO`), including forward and reverse ITD reads `DP2`, ITD length `LEN` and ITD sequence `SEQ`.
 ```bash
-$ itdseek.sh ITD.100.90.bam ucsc.hg19.fasta samtools
+$ ./itdseek.sh examples/ITD.100.100.bam ucsc.hg19.fasta samtools
 ##fileformat=VCFv4.1
-##source=ITDseek
-##reference=file://ucsc.hg19.fasta
+##source=ITDseekV1.1
+##reference=file:///home/adminrig/tools/GenomeAnalysisTK-2.8-1-g932cd3a/bundle_2.8_hg19/ucsc.hg19.fasta
 ##INFO=<ID=DP2,Number=2,Type=Integer,Description="# alt-foward and alt-reverse reads">
 ##INFO=<ID=LEN,Number=1,Type=Integer,Description="length of ITD">
 ##INFO=<ID=SEQ,Number=1,Type=String,Description="sequence of ITD">
-#CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO
-chr13   28608300        .       C       CCATTCTTACCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATC    1000    .       DP2=1000,0;LEN=90;SEQ=CATTCTTACCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATC
+##INFO=<ID=CLIPPING,Number=0,Type=Flag,Description="ITD is detected as soft-clipping">
+##INFO=<ID=INSERTION,Number=0,Type=Flag,Description="ITD is detected as insertion">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+chr13	28608310	.	G	GATTCTTACCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCG	2000	.	DP2=1000,1000;LEN=100;SEQ=ATTCTTACCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCG;CLIPPING
 ```
 A simple filter based on quality score (i.e. number reads supporting ITD) is recommended for real experimental datasets, for example:
 ```bash
