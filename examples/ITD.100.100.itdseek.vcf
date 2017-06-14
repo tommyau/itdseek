@@ -1,0 +1,10 @@
+##fileformat=VCFv4.1
+##source=ITDseekV1.1
+##reference=file://ucsc.hg19.fasta
+##INFO=<ID=DP2,Number=2,Type=Integer,Description="# alt-foward and alt-reverse reads">
+##INFO=<ID=LEN,Number=1,Type=Integer,Description="length of ITD">
+##INFO=<ID=SEQ,Number=1,Type=String,Description="sequence of ITD">
+##INFO=<ID=CLIPPING,Number=0,Type=Flag,Description="ITD is detected as soft-clipping">
+##INFO=<ID=INSERTION,Number=0,Type=Flag,Description="ITD is detected as insertion">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+chr13	28608310	.	G	GATTCTTACCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCG	2000	.	DP2=1000,1000;LEN=100;SEQ=ATTCTTACCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCG;CLIPPING
