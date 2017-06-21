@@ -11,7 +11,7 @@ _FLT3_ ITD detection performance of **ITDseek, Pindel, GATK HaplotypeCaller and 
 ITDseek for detection
 ---------------------
 ### Requirements, as tested on 64-bit CentOS 5.5
-* SAMtools (version 0.1.19 tested)
+* [SAMtools](http://www.htslib.org/download/) version at least 1.3 ([to support depth >8000x](https://github.com/samtools/samtools/pull/322))
 
 ### Usage
 ```bash
@@ -32,7 +32,7 @@ Examples
 
 # Your own data
 # BWA-MEM with -M
-bwa mem -R '@RG\tID:ITDsample\tSM:ITDsample' -M -t 12 ucsc.hg19.fasta ITDsample.R1.fastq ITDsample.R2.fastq | samtools view -bS - | samtools sort - ITDsample
+bwa mem -R '@RG\tID:ITDsample\tSM:ITDsample' -M ucsc.hg19.fasta ITDsample.R1.fastq ITDsample.R2.fastq | samtools sort > ITDsample.bam
 # Index BAM
 samtools index ITDsample.bam
 # ITDseek
@@ -45,15 +45,16 @@ The following is ITDseek output for a simulated 100bp ITD dataset included in th
 ```bash
 $ ./itdseek.sh examples/ITD.100.100.bam ucsc.hg19.fasta samtools
 ##fileformat=VCFv4.1
-##source=ITDseekV1.1
-##reference=file:///home/adminrig/tools/GenomeAnalysisTK-2.8-1-g932cd3a/bundle_2.8_hg19/ucsc.hg19.fasta
+##source=ITDseekV1.2
+##reference=file://ucsc.hg19.fasta
 ##INFO=<ID=DP2,Number=2,Type=Integer,Description="# alt-foward and alt-reverse reads">
 ##INFO=<ID=LEN,Number=1,Type=Integer,Description="length of ITD">
 ##INFO=<ID=SEQ,Number=1,Type=String,Description="sequence of ITD">
 ##INFO=<ID=CLIPPING,Number=0,Type=Flag,Description="ITD is detected as soft-clipping">
 ##INFO=<ID=INSERTION,Number=0,Type=Flag,Description="ITD is detected as insertion">
+##INFO=<ID=VAF,Number=1,Type=Float,Description="ITD allele fraction">
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
-chr13	28608310	.	G	GATTCTTACCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCG	2000	.	DP2=1000,1000;LEN=100;SEQ=ATTCTTACCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCG;CLIPPING
+chr13	28608310	.	G	GATTCTTACCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCG	2000	.	DP2=1000,1000;LEN=100;SEQ=ATTCTTACCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCG;CLIPPING;VAF=0.50
 ```
 A simple filter based on quality score (i.e. number reads supporting ITD) is recommended for real experimental datasets, for example:
 ```bash

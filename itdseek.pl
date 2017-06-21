@@ -2,23 +2,26 @@
 # Chun Hang AU (chau@hksh.com) (https://github.com/tommyau/itdseek)
 # ITDseek - Detect FLT3 internal tandem duplication (FLT3 ITD) in amplicon sequencing reads
 # Example usage:
-# /home/adminrig/tools/samtools-0.1.19/samtools view 1472.bwa-mem.aln-pe.L5.bam chr13:28607161-28609590 | perl itdseek.pl --refseq /home/adminrig/tools/GenomeAnalysisTK-2.8-1-g932cd3a/bundle_2.8_hg19/ucsc.hg19.fasta --samtools /home/adminrig/tools/samtools-0.1.19/samtools > 1472.itdseek.vcf
+# /home/adminrig/tools/samtools-1.3.1/samtools view 1472.bwa-mem.aln-pe.L5.bam chr13:28607161-28609590 | perl itdseek.pl --refseq /home/adminrig/tools/GenomeAnalysisTK-2.8-1-g932cd3a/bundle_2.8_hg19/ucsc.hg19.fasta --samtools /home/adminrig/tools/samtools-1.3.1/samtools --bam 1472.bwa-mem.aln-pe.L5.bam > 1472.itdseek.vcf
 use strict;
 use warnings;
 use Getopt::Long;
 
 # configuration for default paths to reference sequence and samtools
 my $default_refseq = "/home/adminrig/tools/GenomeAnalysisTK-2.8-1-g932cd3a/bundle_2.8_hg19/ucsc.hg19.fasta";
-my $default_samtools = "/home/adminrig/tools/samtools-0.1.19/samtools";
+my $default_samtools = "/home/adminrig/tools/samtools-1.3.1/samtools";
+my $max_samtools_depth = 500000; # overriding samtools depth default cap of 8000x depth
 
 ##
 # internal logic below
+my $bam;
 my %variants; # from clipping mode
 my %insertionvariants; # from insertion mode
 my $min_insertion_len = 3;
 my ($refseq, $samtools);
 GetOptions ("refseq=s" => \$refseq,
-	    "samtools=s" => \$samtools,);
+	    "samtools=s" => \$samtools,
+	    "bam=s" => \$bam,);
 $refseq = $default_refseq if !defined $samtools;
 $samtools = $default_samtools if !defined $samtools;
 
@@ -104,26 +107,35 @@ ALIGNMENT:while(<>) {
 }
 # VCF output
 print "##fileformat=VCFv4.1\n";
-print "##source=ITDseekV1.1\n";
+print "##source=ITDseekV1.2\n";
 print "##reference=file://$refseq\n";
 print "##INFO=<ID=DP2,Number=2,Type=Integer,Description=\"# alt-foward and alt-reverse reads\">\n";
 print "##INFO=<ID=LEN,Number=1,Type=Integer,Description=\"length of ITD\">\n";
 print "##INFO=<ID=SEQ,Number=1,Type=String,Description=\"sequence of ITD\">\n";
 print "##INFO=<ID=CLIPPING,Number=0,Type=Flag,Description=\"ITD is detected as soft-clipping\">\n";
 print "##INFO=<ID=INSERTION,Number=0,Type=Flag,Description=\"ITD is detected as insertion\">\n";
+print "##INFO=<ID=VAF,Number=1,Type=Float,Description=\"ITD allele fraction\">\n";
 print join("\t", "#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO")."\n";
 # clipping mode
 foreach my $variantid (sort {$variants{$b}->[0]+$variants{$b}->[1] <=> $variants{$a}->[0]+$variants{$a}->[1]} keys %variants) {
     my $seq = &faidx($variantid);
     my $ref = substr($seq,-1);
     my $alt = $ref.$seq;
-    print join("\t", $variants{$variantid}->[2], $variants{$variantid}->[4], ".", $ref, $alt, $variants{$variantid}->[0] + $variants{$variantid}->[1], ".", sprintf("DP2=%d,%d;LEN=%d;SEQ=%s;CLIPPING", $variants{$variantid}->[0], $variants{$variantid}->[1], length($seq), $seq))."\n";
+    my $region = sprintf("%s:%d-%d", $variants{$variantid}->[2], $variants{$variantid}->[4] - 0, $variants{$variantid}->[4] + 0);
+    my $region_depth = depth($region);
+    die "ERROR: unexpected region depth $region_depth for $region" if $region_depth <= 0;
+    my $vaf = ($variants{$variantid}->[0] + $variants{$variantid}->[1]) / $region_depth;
+    print join("\t", $variants{$variantid}->[2], $variants{$variantid}->[4], ".", $ref, $alt, $variants{$variantid}->[0] + $variants{$variantid}->[1], ".", sprintf("DP2=%d,%d;LEN=%d;SEQ=%s;CLIPPING;VAF=%0.2f", $variants{$variantid}->[0], $variants{$variantid}->[1], length($seq), $seq, $vaf))."\n";
 }
 # insertion mode
 foreach my $variantid (sort {$insertionvariants{$b}->[0]+$insertionvariants{$b}->[1] <=> $insertionvariants{$a}->[0]+$insertionvariants{$a}->[1]} keys %insertionvariants) {
     my $ref = &faidx(sprintf("%s:%d-%d", @{$insertionvariants{$variantid}}[2,3,3]));
     my $alt = $ref.$insertionvariants{$variantid}->[4];
-    print join("\t", $insertionvariants{$variantid}->[2], $insertionvariants{$variantid}->[3], ".", $ref, $alt, $insertionvariants{$variantid}->[0] + $insertionvariants{$variantid}->[1], ".", sprintf("DP2=%d,%d;LEN=%d;SEQ=%s;INSERTION", $insertionvariants{$variantid}->[0], $insertionvariants{$variantid}->[1], length($insertionvariants{$variantid}->[4]), $insertionvariants{$variantid}->[4]))."\n";
+    my $region = sprintf("%s:%d-%d", $insertionvariants{$variantid}->[2], $insertionvariants{$variantid}->[3] - 0, $insertionvariants{$variantid}->[3] + 0);
+    my $region_depth = depth($region);
+    die "ERROR: unexpected region depth $region_depth for $region" if $region_depth <= 0;
+    my $vaf = ($insertionvariants{$variantid}->[0] + $insertionvariants{$variantid}->[1]) / $region_depth;
+    print join("\t", $insertionvariants{$variantid}->[2], $insertionvariants{$variantid}->[3], ".", $ref, $alt, $insertionvariants{$variantid}->[0] + $insertionvariants{$variantid}->[1], ".", sprintf("DP2=%d,%d;LEN=%d;SEQ=%s;INSERTION;VAF=%0.2f", $insertionvariants{$variantid}->[0], $insertionvariants{$variantid}->[1], length($insertionvariants{$variantid}->[4]), $insertionvariants{$variantid}->[4], $vaf))."\n";
 }
 
 
@@ -220,4 +232,29 @@ sub reconstruct_alignment {
 
     
     return \%alignment_object;
+}
+
+my %depthcache;
+my $depthcache_count = 0;
+sub depth {
+    my ($region) = @_;
+    return $depthcache{$region} if exists $depthcache{$region};
+    my $output = `$samtools depth -d $max_samtools_depth -r $region $bam`;
+    die "Error: unexpected output from samtools depth" unless $? == 0;
+    my @outputlines = split("\n",$output);
+    my @depth;
+    foreach my $line (@outputlines) {
+	my @fields = split (/\t/, $line);
+	push @depth, $fields[2];
+    }
+    $depthcache{$region} = mean(@depth);
+    $depthcache_count++;
+    return $depthcache{$region};
+}
+
+sub mean {
+    my $i = 0;
+    my $sum = 0;
+    map {$i++; $sum+=$_} @_;
+    return $i == 0 ? -1 : $sum/$i
 }
