@@ -11,6 +11,9 @@ use Getopt::Long;
 my $default_refseq = "/home/adminrig/tools/GenomeAnalysisTK-2.8-1-g932cd3a/bundle_2.8_hg19/ucsc.hg19.fasta";
 my $default_samtools = "/home/adminrig/tools/samtools-1.3.1/samtools";
 my $max_samtools_depth = 500000; # overriding samtools depth default cap of 8000x depth
+my $max_clippingvariant_length = 5000;
+my $max_insertionvariant_length = 5000;
+
 
 ##
 # internal logic below
@@ -111,7 +114,7 @@ ALIGNMENT:while(<>) {
 }
 # VCF output
 print "##fileformat=VCFv4.1\n";
-print "##source=ITDseekV1.2\n";
+print "##source=ITDseekV1.2.1\n";
 print "##reference=file://$refseq\n";
 print "##INFO=<ID=DP2,Number=2,Type=Integer,Description=\"# alt-foward and alt-reverse reads\">\n";
 print "##INFO=<ID=LEN,Number=1,Type=Integer,Description=\"length of ITD\">\n";
@@ -123,6 +126,7 @@ print join("\t", "#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO").
 # clipping mode
 VAR:foreach my $variantid (sort {$variants{$b}->[0]+$variants{$b}->[1] <=> $variants{$a}->[0]+$variants{$a}->[1]} keys %variants) {
     my $seq = &faidx($variantid);
+    next VAR if length($seq) > $max_clippingvariant_length;
     my $ref = substr($seq,-1);
     my $alt = $ref.$seq;
     my $region = sprintf("%s:%d-%d", $variants{$variantid}->[2], $variants{$variantid}->[4] - 0, $variants{$variantid}->[4] + 0);
@@ -136,6 +140,7 @@ VAR:foreach my $variantid (sort {$variants{$b}->[0]+$variants{$b}->[1] <=> $vari
 }
 # insertion mode
 VAR:foreach my $variantid (sort {$insertionvariants{$b}->[0]+$insertionvariants{$b}->[1] <=> $insertionvariants{$a}->[0]+$insertionvariants{$a}->[1]} keys %insertionvariants) {
+    next VAR if length($insertionvariants{$variantid}->[4]) > $max_insertionvariant_length;
     my $ref = &faidx(sprintf("%s:%d-%d", @{$insertionvariants{$variantid}}[2,3,3]));
     my $alt = $ref.$insertionvariants{$variantid}->[4];
     my $region = sprintf("%s:%d-%d", $insertionvariants{$variantid}->[2], $insertionvariants{$variantid}->[3] - 0, $insertionvariants{$variantid}->[3] + 0);
