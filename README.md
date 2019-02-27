@@ -79,7 +79,3 @@ Please refer to the comments in the source code of [itdsim.pl](https://github.co
 Citation
 --------
 Au CH, Wa A, Ho DN, Chan TL and Ma ESK, 2016. [Clinical evaluation of panel testing by next-generation sequencing (NGS) for gene mutations in myeloid neoplasms.](http://link.springer.com/article/10.1186/s13000-016-0456-8/fulltext.html) _Diagnostic Pathology_ 11:11 (doi:10.1186/s13000-016-0456-8)
-
-License
--------
-Source code released for non-commercial use only. For commercial use and other licensing enquiries, please contact Dr. Edmond S.K. Ma (<eskma@hksh.com>), Hong Kong Sanatorium and Hospital.
